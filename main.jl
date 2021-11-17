@@ -30,11 +30,11 @@ include("draw.jl")
     Lx::Float64 = 50.0 # [-] Spatial domain limit (x)
     Ly::Float64 = 50.0 # [-] Spatial domain limit (y)
     T::Float64 = 20.0 # [-] End time
-    Nx::Int = 101 # [-] Number of grid points (x)
-    Ny::Int = 101 # [-] Number of grid points (y)
+    Nx::Int = 201 # [-] Number of grid points (x)
+    Ny::Int = 201 # [-] Number of grid points (y)
     Nt::Int = 2001 # [-] Number of time steps
-    V_Iterations::Int = 10 # [-] Number of iterations for velocity extrapolation PDE
-    ϕ_Iterations::Int = 10 # [-] Number of iterations for reinitialisation PDE
+    V_Iterations::Int = 20 # [-] Number of iterations for velocity extrapolation PDE
+    ϕ_Iterations::Int = 20 # [-] Number of iterations for reinitialisation PDE
 end
 
 "Generate initial density and level-set function"
@@ -44,19 +44,19 @@ function ic(par::Params, x, y)
     # Circle
     for i = 1:length(x)
         for j = 1:length(y)
-            # if sqrt((x[i]-par.Lx/2)^2 + (y[j]-par.Ly/2)^2) <= par.β
-            #     U[i,j] = par.u_f # Constant density (inside Ω)
-            # else
-            #     U[i,j] = par.α # Initial density (outside Ω)
-            # end
-            # ϕ[i,j] = -(sqrt((x[i]-par.Lx/2)^2 + (y[j]-par.Ly/2)^2) - par.β) # Initial signed-distance
-            if (x[i] >= par.Lx/2-10/2) && (x[i] <= par.Lx/2+10/2) && (y[j] >= par.Ly/2-4/2) && (y[j] <= par.Ly/2+4/2) # Rectangle
-                U[i,j] = par.α
-                ϕ[i,j] = -0.5
+            if sqrt((x[i]-par.Lx/2)^2 + (y[j]-par.Ly/2)^2) <= par.β
+                U[i,j] = par.α # Constant density (inside Ω)
             else
-                U[i,j] = par.u_f
-                ϕ[i,j] = 0.5
+                U[i,j] = par.u_f # Initial density (outside Ω)
             end
+            ϕ[i,j] = (sqrt((x[i]-par.Lx/2)^2 + (y[j]-par.Ly/2)^2) - par.β) # Initial signed-distance
+            # if (x[i] >= par.Lx/2-10/2) && (x[i] <= par.Lx/2+10/2) && (y[j] >= par.Ly/2-4/2) && (y[j] <= par.Ly/2+4/2) # Rectangle
+            #     U[i,j] = par.α
+            #     ϕ[i,j] = -0.5
+            # else
+            #     U[i,j] = par.u_f
+            #     ϕ[i,j] = 0.5
+            # end
         end
     end
     return U, ϕ
@@ -92,7 +92,7 @@ end
 "Compute a solution"
 function fisher_stefan_2d()
     # Parameters and domain
-    par = Params(T = 20.0, Nt = 2001, Nx = 201, Ny = 201, Lx = 20.0, Ly = 20.0, κ = 0.01) # Initialise data structure of model parameters
+    par = Params() # Initialise data structure of model parameters
     x = range(0, par.Lx, length = par.Nx); dx = x[2] - x[1] # Computational domain (x)
     y = range(0, par.Ly, length = par.Ny); dy = y[2] - y[1] # Computational domain (y)
     t = range(0, par.T, length = par.Nt); dt = t[2] - t[1] # Time domain
@@ -101,8 +101,8 @@ function fisher_stefan_2d()
     ϕ = reinitialisation(ϕ, par, dx, dy, 100)
     draw_heat(x, y, U, ϕ, 0)
     draw_slice(x, y, U, ϕ, 0, 101)
-    # L = Vector{Float64}() # Preallocate empty vector of interface position
-    # push!(L, 25.0 + par.β)
+    L = Vector{Float64}() # Preallocate empty vector of interface position
+    push!(L, 25.0 + par.β)
     # Time stepping
     for i = 1:par.Nt-1
         # 1. Find Ω, dΩ, and irregular grid points
@@ -123,11 +123,11 @@ function fisher_stefan_2d()
             draw_heat(x, y, U, V, ϕ, i)
             draw_slice(x, y, U, V, ϕ, i, 101)
         end
-        # front_pos = front_position(x, ϕ, 101, dx)
-        # push!(L, front_pos)
+        front_pos = front_position(x, ϕ, 101, dx)
+        push!(L, front_pos)
     end
-    # writedlm("L.csv", L)
-    # writedlm("t.csv", t)
+    writedlm("L.csv", L)
+    writedlm("t.csv", t)
 end
 
 @time fisher_stefan_2d()
