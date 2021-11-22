@@ -29,10 +29,10 @@ include("draw.jl")
     θ::Float64 = 1.99 # [-] Parameter for minmod flux-limiter
     Lx::Float64 = 50.0 # [-] Spatial domain limit (x)
     Ly::Float64 = 50.0 # [-] Spatial domain limit (y)
-    T::Float64 = 20.0 # [-] End time
+    T::Float64 = 10.0 # [-] End time
     Nx::Int = 201 # [-] Number of grid points (x)
     Ny::Int = 201 # [-] Number of grid points (y)
-    Nt::Int = 2001 # [-] Number of time steps
+    Nt::Int = 10001 # [-] Number of time steps
     V_Iterations::Int = 20 # [-] Number of iterations for velocity extrapolation PDE
     ϕ_Iterations::Int = 20 # [-] Number of iterations for reinitialisation PDE
 end
@@ -99,8 +99,8 @@ function fisher_stefan_2d()
     # Initial condition
     U, ϕ = ic(par, x, y) # Obtain initial density and ϕ
     ϕ = reinitialisation(ϕ, par, dx, dy, 100)
-    draw_heat(x, y, U, ϕ, 0)
-    draw_slice(x, y, U, ϕ, 0, 101)
+    draw_heat(par, x, y, U, ϕ, 0)
+    draw_slice(par, x, y, U, ϕ, 0, 101)
     L = Vector{Float64}() # Preallocate empty vector of interface position
     push!(L, 25.0 + par.β)
     # Time stepping
@@ -119,9 +119,9 @@ function fisher_stefan_2d()
             ϕ = reinitialisation(ϕ, par, dx, dy, par.ϕ_Iterations)
         end
         # Optional: Post-processing
-        if mod(i, 100) == 0
-            draw_heat(x, y, U, V, ϕ, i)
-            draw_slice(x, y, U, V, ϕ, i, 101)
+        if mod(i, 1000) == 0
+            draw_heat(par, x, y, U, V, ϕ, i)
+            draw_slice(par, x, y, U, V, ϕ, i, 101)
         end
         front_pos = front_position(x, ϕ, 101, dx)
         push!(L, front_pos)
