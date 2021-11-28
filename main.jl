@@ -27,12 +27,12 @@ include("draw.jl")
     β::Float64 = 10.0 # [-] Initial interface radius
     θb::Float64 = 0.01 # [-] Threshold for whether a grid point is close to interface
     θ::Float64 = 1.99 # [-] Parameter for minmod flux-limiter
-    Lx::Float64 = 50.0 # [-] Spatial domain limit (x)
-    Ly::Float64 = 50.0 # [-] Spatial domain limit (y)
-    T::Float64 = 10.0 # [-] End time
+    Lx::Float64 = 20.0 # [-] Spatial domain limit (x)
+    Ly::Float64 = 20.0 # [-] Spatial domain limit (y)
+    T::Float64 = 100.0 # [-] End time
     Nx::Int = 201 # [-] Number of grid points (x)
     Ny::Int = 201 # [-] Number of grid points (y)
-    Nt::Int = 10001 # [-] Number of time steps
+    Nt::Int = 50001 # [-] Number of time steps
     V_Iterations::Int = 20 # [-] Number of iterations for velocity extrapolation PDE
     ϕ_Iterations::Int = 20 # [-] Number of iterations for reinitialisation PDE
 end
@@ -41,16 +41,18 @@ end
 function ic(par::Params, x, y)
     U = Array{Float64}(undef, par.Nx, par.Ny) # Pre-allocate 2D array of U
     ϕ = Array{Float64}(undef, par.Nx, par.Ny) # Pre-allocate 2D array of ϕ
-    # Circle
+    # Loop over grid points
     for i = 1:length(x)
         for j = 1:length(y)
+            # Circle
             if sqrt((x[i]-par.Lx/2)^2 + (y[j]-par.Ly/2)^2) <= par.β
                 U[i,j] = par.α # Constant density (inside Ω)
             else
                 U[i,j] = par.u_f # Initial density (outside Ω)
             end
             ϕ[i,j] = (sqrt((x[i]-par.Lx/2)^2 + (y[j]-par.Ly/2)^2) - par.β) # Initial signed-distance
-            # if (x[i] >= par.Lx/2-10/2) && (x[i] <= par.Lx/2+10/2) && (y[j] >= par.Ly/2-4/2) && (y[j] <= par.Ly/2+4/2) # Rectangle
+            # # Rectangle
+            # if (x[i] >= par.Lx/2 - 10.0/2) && (x[i] <= par.Lx/2 + 10.0/2) && (y[j] >= par.Ly/2 - 4.0/2) && (y[j] <= par.Ly/2 + 4.0/2)
             #     U[i,j] = par.α
             #     ϕ[i,j] = -0.5
             # else
@@ -100,9 +102,10 @@ function fisher_stefan_2d()
     U, ϕ = ic(par, x, y) # Obtain initial density and ϕ
     ϕ = reinitialisation(ϕ, par, dx, dy, 100)
     draw_heat(par, x, y, U, ϕ, 0)
-    draw_slice(par, x, y, U, ϕ, 0, 101)
-    L = Vector{Float64}() # Preallocate empty vector of interface position
-    push!(L, 25.0 + par.β)
+    draw_slices(par, x, y, U, ϕ, 0, 101, 101)
+    Lx = Vector{Float64}() # Preallocate empty vector of interface position
+    Ly = Vector{Float64}() # Preallocate empty vector of interface position
+    push!(Lx, par.Lx/2 + par.β); push!(Ly, par.Ly/2 + par.β)
     # Time stepping
     for i = 1:par.Nt-1
         # 1. Find Ω, dΩ, and irregular grid points
@@ -119,14 +122,15 @@ function fisher_stefan_2d()
             ϕ = reinitialisation(ϕ, par, dx, dy, par.ϕ_Iterations)
         end
         # Optional: Post-processing
-        if mod(i, 1000) == 0
+        if mod(i, 10) == 0
             draw_heat(par, x, y, U, V, ϕ, i)
-            draw_slice(par, x, y, U, V, ϕ, i, 101)
+            draw_slices(par, x, y, U, V, ϕ, i, 101, 101)
         end
-        front_pos = front_position(x, ϕ, 101, dx)
-        push!(L, front_pos)
+        px, py = front_position(x, y, ϕ, 101, 101, dx, dy)
+        push!(Lx, px); push!(Ly, py)
     end
-    writedlm("L.csv", L)
+    writedlm("Lx.csv", Lx)
+    writedlm("Ly.csv", Ly)
     writedlm("t.csv", t)
 end
 
