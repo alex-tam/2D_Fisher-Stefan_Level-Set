@@ -118,11 +118,11 @@ function fisher_stefan_2d()
         # 4. Solve level-set equation
         ϕ = level_set(V, ϕ, par, dx, dy, dt)
         # 5. Re-initialise level-set function as a signed-distance
-        if mod(i, 10) == 0
+        if mod(i, 100) == 0
             ϕ = reinitialisation(ϕ, par, dx, dy, par.ϕ_Iterations)
         end
         # Optional: Post-processing
-        if mod(i, 10) == 0
+        if mod(i, 1000) == 0
             draw_heat(par, x, y, U, V, ϕ, i)
             draw_slices(par, x, y, U, V, ϕ, i, 101, 101)
         end
