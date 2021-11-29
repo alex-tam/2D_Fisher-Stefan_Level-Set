@@ -5,20 +5,20 @@
 function draw_heat(par, x, y, U, V, ϕ, i)
     gr(); plot() # Load GR plotting backend and clear previous plots
     default(titlefont = (18, "Computer Modern"), guidefont = (26, "Computer Modern"), tickfont = (18, "Computer Modern"))
-    heatmap(x,y,transpose(U), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,par.Lx), ylims =(0,par.Ly), tick_direction=:out)
+    heatmap(x,y,transpose(U), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,par.Lx), ylims =(0,par.Ly), tick_direction=:out, c=:plasma, clims=(0.0, 1.0))
     savefig("u-$i.pdf")
-    heatmap(x,y,transpose(V), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,par.Lx), ylims =(0,par.Ly), tick_direction=:out)
+    heatmap(x,y,transpose(V), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,par.Lx), ylims =(0,par.Ly), tick_direction=:out, c=:plasma)
     savefig("V-$i.pdf")
-    heatmap(x,y,transpose(ϕ), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,par.Lx), ylims =(0,par.Ly), tick_direction=:out)
+    heatmap(x,y,transpose(ϕ), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,par.Lx), ylims =(0,par.Ly), tick_direction=:out, c=:plasma)
     savefig("phi-$i.pdf")
 end
 
 function draw_heat(par, x, y, U, ϕ, i)
     gr(); plot() # Load GR plotting backend and clear previous plots
     default(titlefont = (18, "Computer Modern"), guidefont = (26, "Computer Modern"), tickfont = (18, "Computer Modern"))
-    heatmap(x,y,transpose(U), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,par.Lx), ylims =(0,par.Ly), tick_direction=:out)
+    heatmap(x,y,transpose(U), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,par.Lx), ylims =(0,par.Ly), tick_direction=:out, c=:plasma, clims=(0.0,1.0))
     savefig("u-$i.pdf")
-    heatmap(x,y,transpose(ϕ), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,par.Lx), ylims =(0,par.Ly), tick_direction=:out)
+    heatmap(x,y,transpose(ϕ), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,par.Lx), ylims =(0,par.Ly), tick_direction=:out, c=:plasma)
     savefig("phi-$i.pdf")
 end
 
