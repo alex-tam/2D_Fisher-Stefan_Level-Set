@@ -4,8 +4,6 @@
 # Load packages
 using Parameters
 using DifferentialEquations
-using Plots
-using LaTeXStrings
 using DelimitedFiles
 
 # Include external files
@@ -14,13 +12,12 @@ include("fkpp.jl")
 include("velocity.jl")
 include("level-set.jl")
 include("reinitialisation.jl")
-include("draw.jl")
 
 "Data structure for model parameters"
 @with_kw struct Params
     D::Float64 = 1.0 # [-] Diffusion coefficient
     λ::Float64 = 1.0 # [-] Reaction rate
-    κ::Float64 = 1.0 # [-] Stefan parameter
+    κ::Float64 = 0.1 # [-] Stefan parameter
     u_f::Float64 = 0.0 # [-] Density at interface
     u_b::Float64 = 0.0 # [-] Density at computational boundary
     α::Float64 = 0.5 # [-] Maximum initial density
@@ -32,7 +29,7 @@ include("draw.jl")
     T::Float64 = 100.0 # [-] End time
     Nx::Int = 201 # [-] Number of grid points (x)
     Ny::Int = 201 # [-] Number of grid points (y)
-    Nt::Int = 50001 # [-] Number of time steps
+    Nt::Int = 100001 # [-] Number of time steps
     V_Iterations::Int = 20 # [-] Number of iterations for velocity extrapolation PDE
     ϕ_Iterations::Int = 20 # [-] Number of iterations for reinitialisation PDE
 end
@@ -52,7 +49,7 @@ function ic(par::Params, x, y)
             end
             ϕ[i,j] = (sqrt((x[i]-par.Lx/2)^2 + (y[j]-par.Ly/2)^2) - par.β) # Initial signed-distance
             # # Rectangle
-            # if (x[i] >= par.Lx/2 - 10.0/2) && (x[i] <= par.Lx/2 + 10.0/2) && (y[j] >= par.Ly/2 - 4.0/2) && (y[j] <= par.Ly/2 + 4.0/2)
+            # if (x[i] >= par.Lx/2 - 4.0/2) && (x[i] <= par.Lx/2 + 4.0/2) && (y[j] >= par.Ly/2 - 4.0/2) && (y[j] <= par.Ly/2 + 4.0/2)
             #     U[i,j] = par.α
             #     ϕ[i,j] = -0.5
             # else
@@ -91,20 +88,43 @@ function build_v_matrix(v::Vector, par, D)
     return V
 end
 
+function front_position(x, y, ϕ, nx, ny, dx, dy)
+    L = Vector{Float64}() # Initialise
+    # Find front position using x-direction slice
+    ϕv = ϕ[:,ny]
+    for i = 1:length(ϕv)
+        if (ϕv[i] < 0) && (ϕv[i+1] >= 0)
+            θ = ϕv[i]/(ϕv[i] - ϕv[i+1])
+            push!(L, x[i] + θ*dx)
+        end
+    end
+    # Find front position using y-direction slice
+    ϕv = ϕ[nx,:]
+    for i = 1:length(ϕv)
+        if (ϕv[i] < 0) && (ϕv[i+1] >= 0)
+            θ = ϕv[i]/(ϕv[i] - ϕv[i+1])
+            push!(L, y[i] + θ*dy)
+        end
+    end
+    return L[1], L[2]
+end
+
 "Compute a solution"
 function fisher_stefan_2d()
     # Parameters and domain
     par = Params() # Initialise data structure of model parameters
+    nx::Int = (par.Nx-1)/2; ny::Int = (par.Ny-1)/2; # Indices for slice plots
     x = range(0, par.Lx, length = par.Nx); dx = x[2] - x[1] # Computational domain (x)
     y = range(0, par.Ly, length = par.Ny); dy = y[2] - y[1] # Computational domain (y)
     t = range(0, par.T, length = par.Nt); dt = t[2] - t[1] # Time domain
+    writedlm("x.csv", x); writedlm("y.csv", y); writedlm("t.csv", t) # Write data to files
     # Initial condition
     U, ϕ = ic(par, x, y) # Obtain initial density and ϕ
     ϕ = reinitialisation(ϕ, par, dx, dy, 100)
-    draw_heat(par, x, y, U, ϕ, 0)
-    draw_slices(par, x, y, U, ϕ, 0, 101, 101)
+    writedlm("U-0.csv", U); writedlm("Phi-0.csv", ϕ) # Write data to files
     Lx = Vector{Float64}() # Preallocate empty vector of interface position
     Ly = Vector{Float64}() # Preallocate empty vector of interface position
+    plot_times = Vector{Int}() # Vector of time-steps at which data is obtained
     push!(Lx, par.Lx/2 + par.β); push!(Ly, par.Ly/2 + par.β)
     # Time stepping
     for i = 1:par.Nt-1
@@ -118,20 +138,24 @@ function fisher_stefan_2d()
         # 4. Solve level-set equation
         ϕ = level_set(V, ϕ, par, dx, dy, dt)
         # 5. Re-initialise level-set function as a signed-distance
-        if mod(i, 100) == 0
+        if mod(i, 10) == 0
             ϕ = reinitialisation(ϕ, par, dx, dy, par.ϕ_Iterations)
         end
         # Optional: Post-processing
-        if mod(i, 1000) == 0
-            draw_heat(par, x, y, U, V, ϕ, i)
-            draw_slices(par, x, y, U, V, ϕ, i, 101, 101)
+        if mod(i, 10000) == 0
+            writedlm("ux-$i.csv", U[:,ny])
+            writedlm("uy-$i.csv", U[nx,:])
+            writedlm("U-$i.csv", U)
+            writedlm("V-$i.csv", V)
+            writedlm("Phi-$i.csv", ϕ)
+            push!(plot_times, i)
         end
-        px, py = front_position(x, y, ϕ, 101, 101, dx, dy)
+        px, py = front_position(x, y, ϕ, nx, ny, dx, dy)
         push!(Lx, px); push!(Ly, py)
     end
     writedlm("Lx.csv", Lx)
     writedlm("Ly.csv", Ly)
-    writedlm("t.csv", t)
+    writedlm("plot_times.csv", plot_times)
 end
 
 @time fisher_stefan_2d()
