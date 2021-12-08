@@ -149,13 +149,13 @@ function fisher_stefan_2d()
             writedlm("V-$i.csv", V)
             writedlm("Phi-$i.csv", ϕ)
             push!(plot_times, i)
+            writedlm("plot_times.csv", plot_times)
         end
         px, py = front_position(x, y, ϕ, nx, ny, dx, dy)
         push!(Lx, px); push!(Ly, py)
+        writedlm("Lx.csv", Lx)
+        writedlm("Ly.csv", Ly)
     end
-    writedlm("Lx.csv", Lx)
-    writedlm("Ly.csv", Ly)
-    writedlm("plot_times.csv", plot_times)
 end
 
 @time fisher_stefan_2d()
