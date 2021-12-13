@@ -29,7 +29,7 @@ include("reinitialisation.jl")
     T::Float64 = 100.0 # [-] End time
     Nx::Int = 201 # [-] Number of grid points (x)
     Ny::Int = 201 # [-] Number of grid points (y)
-    Nt::Int = 100001 # [-] Number of time steps
+    Nt::Int = 50001 # [-] Number of time steps
     V_Iterations::Int = 20 # [-] Number of iterations for velocity extrapolation PDE
     ϕ_Iterations::Int = 20 # [-] Number of iterations for reinitialisation PDE
 end
@@ -142,7 +142,7 @@ function fisher_stefan_2d()
             ϕ = reinitialisation(ϕ, par, dx, dy, par.ϕ_Iterations)
         end
         # Optional: Post-processing
-        if mod(i, 10000) == 0
+        if mod(i, 5000) == 0
             writedlm("ux-$i.csv", U[:,ny])
             writedlm("uy-$i.csv", U[nx,:])
             writedlm("U-$i.csv", U)
