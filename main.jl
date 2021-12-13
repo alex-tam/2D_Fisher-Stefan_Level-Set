@@ -30,7 +30,7 @@ include("reinitialisation.jl")
     Nx::Int = 201 # [-] Number of grid points (x)
     Ny::Int = 201 # [-] Number of grid points (y)
     Nt::Int = 50001 # [-] Number of time steps
-    V_Iterations::Int = 20 # [-] Number of iterations for velocity extrapolation PDE
+    V_Iterations::Int = 10 # [-] Number of iterations for velocity extrapolation PDE
     ϕ_Iterations::Int = 20 # [-] Number of iterations for reinitialisation PDE
 end
 
