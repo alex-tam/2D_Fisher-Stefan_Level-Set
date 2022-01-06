@@ -32,7 +32,7 @@ function draw_slices(x, y, nx, ny, Lx, Ly, plot_times)
     gr(); plot() # Load GR plotting backend and clear previous plots
     default(titlefont = (18, "Computer Modern"), guidefont = (26, "Computer Modern"), tickfont = (18, "Computer Modern"))
     U = readdlm("U-0.csv")
-    plot(x, U[:,ny], xlabel = L"$x$", ylabel = L"$u(x,10,t)$", linecolor = :black, grid = false, margin=3mm, legend = false, xlims=(0,Lx), ylims=(0,1))
+    plot(x, U[:,ny], xlabel = L"$x$", ylabel = L"$u(x,10,t)$", linecolor = :black, aspect_ratio = 20.0, grid = false, margin=3mm, legend = false, xlims=(0,Lx), ylims=(0,1))
     for i in plot_times[2:2:end]
         u = readdlm("ux-$i.csv")
         plot!(x, u, linecolor = :black, linestyle = :dash)
@@ -40,7 +40,7 @@ function draw_slices(x, y, nx, ny, Lx, Ly, plot_times)
     # plot!([7.595174442,7.595174442], [0,1], linecolor = :red)
     # plot!([12.404825558,12.404825558], [0,1], linecolor = :red)
     savefig("u_slice_x.pdf")
-    plot(y, U[nx,:], xlabel = L"$y$", ylabel = L"$u(10,y,t)$", linecolor = :black, grid = false, margin=3mm, legend = false, xlims=(0,Ly), ylims=(0,1))
+    plot(y, U[nx,:], xlabel = L"$y$", ylabel = L"$u(10,y,t)$", linecolor = :black, aspect_ratio = 20.0, grid = false, margin=3mm, legend = false, xlims=(0,Ly), ylims=(0,1))
     for i in plot_times[2:2:end]
         u = readdlm("uy-$i.csv")
         plot!(y, u, linecolor = :black, linestyle = :dash)
