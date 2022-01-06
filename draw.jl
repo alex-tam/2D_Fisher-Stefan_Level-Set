@@ -2,6 +2,7 @@
 # Alex Tam, 09/11/2021
 
 using Plots
+using Measures
 using LaTeXStrings
 using DelimitedFiles
 
@@ -9,20 +10,20 @@ using DelimitedFiles
 function draw_heat(x, y, U, V, ϕ, i, Lx, Ly)
     gr(); plot() # Load GR plotting backend and clear previous plots
     default(titlefont = (18, "Computer Modern"), guidefont = (26, "Computer Modern"), tickfont = (18, "Computer Modern"))
-    heatmap(x,y,transpose(U), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,Lx), ylims =(0,Ly), tick_direction=:out, c=:plasma, clims=(0.0, 0.5))
+    heatmap(x,y,transpose(U), xlabel = L"$x$", ylabel = L"$y$", margin=2mm, aspect_ratio=:equal, xlims=(0,Lx), ylims =(0,Ly), tick_direction=:out, c=:plasma, clims=(0.0, 1.0))
     savefig("u-$i.pdf")
-    heatmap(x,y,transpose(V), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,Lx), ylims =(0,Ly), tick_direction=:out, c=:plasma)
+    heatmap(x,y,transpose(V), xlabel = L"$x$", ylabel = L"$y$", margin=2mm, aspect_ratio=:equal, xlims=(0,Lx), ylims =(0,Ly), tick_direction=:out, c=:plasma)
     savefig("V-$i.pdf")
-    heatmap(x,y,transpose(ϕ), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,Lx), ylims =(0,Ly), tick_direction=:out, c=:plasma)
+    heatmap(x,y,transpose(ϕ), xlabel = L"$x$", ylabel = L"$y$", margin=2mm, aspect_ratio=:equal, xlims=(0,Lx), ylims =(0,Ly), tick_direction=:out, c=:plasma)
     savefig("phi-$i.pdf")
 end
 
 function draw_heat(x, y, U, ϕ, i, Lx, Ly)
     gr(); plot() # Load GR plotting backend and clear previous plots
     default(titlefont = (18, "Computer Modern"), guidefont = (26, "Computer Modern"), tickfont = (18, "Computer Modern"))
-    heatmap(x,y,transpose(U), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,Lx), ylims =(0,Ly), tick_direction=:out, c=:plasma, clims=(0.0, 0.5))
+    heatmap(x,y,transpose(U), xlabel = L"$x$", ylabel = L"$y$", margin=2mm, aspect_ratio=:equal, xlims=(0,Lx), ylims =(0,Ly), tick_direction=:out, c=:plasma, clims=(0.0, 1.0))
     savefig("u-$i.pdf")
-    heatmap(x,y,transpose(ϕ), xlabel = L"$x$", ylabel = L"$y$", aspect_ratio=:equal, xlims=(0,Lx), ylims =(0,Ly), tick_direction=:out, c=:plasma)
+    heatmap(x,y,transpose(ϕ), xlabel = L"$x$", ylabel = L"$y$", margin=2mm, aspect_ratio=:equal, xlims=(0,Lx), ylims =(0,Ly), tick_direction=:out, c=:plasma)
     savefig("phi-$i.pdf")
 end
 
@@ -30,17 +31,17 @@ end
 function draw_slices(x, y, U, V, ϕ, i, nx, ny, Lx, Ly)
     gr(); plot() # Load GR plotting backend and clear previous plots
     default(titlefont = (18, "Computer Modern"), guidefont = (26, "Computer Modern"), tickfont = (18, "Computer Modern"))
-    plot(x, U[:,ny], xlabel = L"$x$", ylabel = L"$u(x,25,t)$", legend = false, xlims=(0,Lx))
+    plot(x, U[:,ny], xlabel = L"$x$", ylabel = L"$u(x,25,t)$", margin=2mm, legend = false, xlims=(0,Lx))
     savefig("u_slice_x-$i.pdf")
-    plot(x, V[:,ny], xlabel = L"$x$", ylabel = L"$V(x,25,t)$", legend = false, xlims=(0,Lx))
+    plot(x, V[:,ny], xlabel = L"$x$", ylabel = L"$V(x,25,t)$", margin=2mm, legend = false, xlims=(0,Lx))
     savefig("V_slice_x-$i.pdf")
-    plot(x, ϕ[:,ny], xlabel = L"$x$", ylabel = L"$\phi(x,25,t)$", legend = false, xlims=(0,Lx))
+    plot(x, ϕ[:,ny], xlabel = L"$x$", ylabel = L"$\phi(x,25,t)$", margin=2mm, legend = false, xlims=(0,Lx))
     savefig("phi_slice_x-$i.pdf")
-    plot(y, U[nx,:], xlabel = L"$y$", ylabel = L"$u(25,y,t)$", legend = false, xlims=(0,Ly))
+    plot(y, U[nx,:], xlabel = L"$y$", ylabel = L"$u(25,y,t)$", margin=2mm, legend = false, xlims=(0,Ly))
     savefig("u_slice_y-$i.pdf")
-    plot(y, V[nx,:], xlabel = L"$y$", ylabel = L"$V(25,y,t)$", legend = false, xlims=(0,Ly))
+    plot(y, V[nx,:], xlabel = L"$y$", ylabel = L"$V(25,y,t)$", margin=2mm, legend = false, xlims=(0,Ly))
     savefig("V_slice_y-$i.pdf")
-    plot(y, ϕ[nx,:], xlabel = L"$y$", ylabel = L"$\phi(25,y,t)$", legend = false, xlims=(0,Ly))
+    plot(y, ϕ[nx,:], xlabel = L"$y$", ylabel = L"$\phi(25,y,t)$", margin=2mm, legend = false, xlims=(0,Ly))
     savefig("phi_slice_y-$i.pdf")
     writedlm("x.csv", x)
     writedlm("y.csv", y)
@@ -51,13 +52,13 @@ end
 function draw_slices(x, y, U, ϕ, i, nx, ny, Lx, Ly)
     gr(); plot() # Load GR plotting backend and clear previous plots
     default(titlefont = (18, "Computer Modern"), guidefont = (26, "Computer Modern"), tickfont = (18, "Computer Modern"))
-    plot(x, U[:,ny], xlabel = L"$x$", ylabel = L"$u(x,25,t)$", legend = false, xlims=(0,Lx))
+    plot(x, U[:,ny], xlabel = L"$x$", ylabel = L"$u(x,25,t)$", margin=2mm, legend = false, xlims=(0,Lx))
     savefig("u_slice_x-$i.pdf")
-    plot(x, ϕ[:,ny], xlabel = L"$x$", ylabel = L"$\phi(x,25,t)$", legend = false, xlims=(0,Lx))
+    plot(x, ϕ[:,ny], xlabel = L"$x$", ylabel = L"$\phi(x,25,t)$", margin=2mm, legend = false, xlims=(0,Lx))
     savefig("phi_slice_x-$i.pdf")
-    plot(y, U[nx,:], xlabel = L"$y$", ylabel = L"$u(25,y,t)$", legend = false, xlims=(0,Ly))
+    plot(y, U[nx,:], xlabel = L"$y$", ylabel = L"$u(25,y,t)$", margin=2mm, legend = false, xlims=(0,Ly))
     savefig("u_slice_y-$i.pdf")
-    plot(y, ϕ[nx,:], xlabel = L"$y$", ylabel = L"$\phi(25,y,t)$", legend = false, xlims=(0,Ly))
+    plot(y, ϕ[nx,:], xlabel = L"$y$", ylabel = L"$\phi(25,y,t)$", margin=2mm, legend = false, xlims=(0,Ly))
     savefig("phi_slice_y-$i.pdf")
 end
 
