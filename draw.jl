@@ -30,7 +30,7 @@ end
 "Density slice plots"
 function draw_slices(x, y, nx, ny, Lx, Ly, plot_times)
     gr(); plot() # Load GR plotting backend and clear previous plots
-    default(titlefont = (18, "Computer Modern"), guidefont = (18, "Computer Modern"), tickfont = (18, "Computer Modern"))
+    default(titlefont = (18, "Computer Modern"), guidefont = (26, "Computer Modern"), tickfont = (18, "Computer Modern"))
     U = readdlm("U-0.csv")
     plot(x, U[:,ny], xlabel = L"$x$", ylabel = L"$u(x,10,t)$", linecolor = :black, grid = false, margin=3mm, legend = false, xlims=(0,Lx), ylims=(0,1))
     for i in plot_times[2:2:end]
