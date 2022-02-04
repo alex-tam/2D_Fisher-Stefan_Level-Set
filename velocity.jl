@@ -35,7 +35,7 @@ function interface_velocity(dΩ, U, ϕ, par, dx, dy)
                 ux = (1/dx)*(ip.m.θxp*um/(ip.m.θxm*(ip.m.θxm+ip.m.θxp)) - (ip.m.θxm+ip.m.θxp)*U[ip.m.xInd,ip.m.yInd]/(ip.m.θxm*ip.m.θxp) + par.u_f*(2*ip.m.θxp+ip.m.θxm)/(ip.m.θxp*(ip.m.θxp+ip.m.θxm))) # Biased stencil
             elseif (ip.m.Ω == true) && (ip.m.dΩ == true) # Left point lies inside Ω and close to interface
                 ϕm = ϕ[ip.m.xInd-1,ip.m.yInd]
-                ϕmm = ϕ[ip.m.xInd-1,ip.m.yInd]
+                ϕmm = ϕ[ip.m.xInd-2,ip.m.yInd]
                 if (ϕm < 0) && (ϕmm < 0) # Check two adjacent grid points
                     ux = 1/(2*dx)*(3*U[ip.m.xInd,ip.m.yInd] - 4*U[ip.m.xInd-1,ip.m.yInd] + U[ip.m.xInd-2,ip.m.yInd]) # Second-order
                 elseif (ϕm < 0) && (ϕmm >= 0)
