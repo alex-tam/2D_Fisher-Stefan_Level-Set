@@ -21,7 +21,7 @@ include("reinitialisation.jl")
     u_f::Float64 = 0.0 # [-] Density at interface
     u_b::Float64 = 0.0 # [-] Density at computational boundary
     α::Float64 = 0.5 # [-] Maximum initial density
-    β::Float64 = 10.0 # [-] Initial interface radius
+    β::Float64 = 2.1 # [-] Initial interface radius
     θb::Float64 = 0.01 # [-] Threshold for whether a grid point is close to interface
     θ::Float64 = 1.99 # [-] Parameter for minmod flux-limiter
     Lx::Float64 = 20.0 # [-] Spatial domain limit (x)
